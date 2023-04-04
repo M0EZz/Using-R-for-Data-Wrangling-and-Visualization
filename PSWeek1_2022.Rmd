@@ -1,0 +1,159 @@
+---
+title: "Problem Set Week 1"
+author: "Helge Moes"
+date: "15-01-2023"
+output:
+  word_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Directions for the student
+
+- Put all R code in code chunks and verbal answers outside code chunks.
+- If you get a piece of R code to work, set the code chunk option eval=FALSE to ensure the document can still be knitted.
+- Use tidyverse functions whenever possible.
+- Comment your code to communicate your intentions.
+- Ensure that the R Markdown document knits without problems into a PDF or Word document.
+- Submit the R Markdown document on Canvas (under Assignments) before the deadline.
+
+```{r libraries}
+#Load all libraries in this code chunk.
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+```
+
+## Data
+
+**sleepers.csv**. The effect of two drugs (variable *group*) on the increase in hours of sleep compared to a control condition (variable *extra*) in 67 patients (variable *ID*). The patient's age group (*age*, 1 = 18-25, 2 = 26-35, 3 = 36-50, 4 = 50+) is provided as well.
+
+## Questions
+
+1. Import the data in R with `readr::` and count the missing values on each variable using R code.
+
+```{r}
+#Add your R code for answering this question here.
+#Read file
+sleepers <- readr::read_csv("sleepers.csv")
+
+sleepers#table of data
+
+#Check: count missing values
+sum(is.na(sleepers$group)) #0
+sum(is.na(sleepers$age)) #3
+sum(is.na(sleepers$extra)) #0
+
+#Count missing values
+sleepers %>% 
+  summarise_all(funs(sum(is.na(.))))
+
+```
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 1   | 1           |          | 
+
+2. Use `ggplot2::` to create one figure containing a frequency polygon of sleep increase for each drug. Use different colors for the two polygons. Which drug seems to increase sleep more? 
+
+```{r}
+#Add your R code for answering this question here.
+
+ggplot2::ggplot(data = sleepers, aes(x = extra, fill = group, color = group)) + geom_freqpoly(binwidth = 1) + ggtitle("Extra sleep based on effect drugs") + scale_fill_discrete(name = "Drug", labels = c("Drug 1", "Drug 2"))
+                
+```
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 2   | 1           |          | 
+
+3. For each age group, create a figure as in Question 2 using facetting. Again, use `ggplot2::`. Which drug works better (gives more additional sleep) for which age group?
+
+```{r}
+#Add your R code for answering this question here.
+
+ggplot2::ggplot(data = sleepers, aes(x = extra, fill = group, color = group)) + geom_freqpoly(binwidth = 3) + ggtitle("What drug gives more additional sleep?") + scale_fill_discrete(name = "Drug", labels = c("Drug 1", "Drug 2")) + facet_grid(~ age)
+
+#Answer: Based on the figures with a binwidth of 3, Drug 2 portrays better results (and therefore addtional sleep) for age groups 2, 3 and 4 than Drug 1. Yet, Drug 1 is more succesful for age group 1. Furthermore, Drug 2 also portrays missing values in figure 'NA'. However, this shows what is lost during the conduct of this research
+
+```
+
+
+### Answer: 
+Based on the figures with a binwidth of 3, Drug 2 portrays better results (and therefore addtional sleep) for age groups 2 (26-35), 3 (36-50) and 4 (50+) than Drug 1. Yet, Drug 1 is more succesful for age group 1 (18-25). Furthermore, Drug 2 also portrays missing values in figure 'NA'. However, this shows what is lost during the conduct of this research
+
+
+
+
+
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 3   | 2           |          | 
+
+4. Use `dplyr::` to create a table (tibble/data frame) containing the number of observations, the minimum, maximum, and average sleep increase for each drug.
+
+```{r}
+#Add your R code for answering this question here.
+
+sleepers %>%
+  group_by(group) %>%
+  summarise(n = n(), min = min(extra), max = max(extra), mean = mean(extra))
+
+```
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 4   | 1           |          | 
+
+5. Calculate the difference in extra sleep for each patient between drug 2 and drug 1, again using `dplyr::`. Show the first 10 rows of the results.
+
+Tip: Sort the data and, in the end, only retain one case for each patient.
+
+```{r}
+#Add your R code for answering this question here.
+
+sleepers_difference <- sleepers %>%
+  group_by(ID) %>%
+  summarize(extra_difference = sum(extra[group == "Drug2"] -- extra[group == "Drug2"])) %>%
+  select(ID, extra_difference)
+
+head(sleepers_difference, 10)
+
+
+```
+
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 5   | 2           |          | 
+
+6. Create a plot to explore the covariation (association) between two continuous variables in *your project's data set* that are of interest to you. Use comments in the R code to justify the choices that you made to create this plot.
+
+Note: You may use grouped summaries (aggregation) to create continuous variables.
+
+```{r}
+#Add your R code for answering this question here.
+
+#The dataset Health.csv is used in order to research the covariation between the frequency of sport per week and weight of patients. To address the covariation of these two symptoms, a geom_point has been implemented, since it allows the user to use x and y variables in order to portray covariates in the data.
+
+Health <- readr::read_csv("Health.csv")
+
+ggplot2::ggplot(data = Health, aes(x = sports_per_week, y = current_weight, color = sports_per_week)) + geom_point(size = 4, shape = 5) + ggtitle("Covariation of weight and number of sport per week") + scale_fill_discrete(name = "sports_per_week", labels = c("sports_per_week", "current_weight"))
+
+```
+
+
+### Answer:
+Based on the figure, the frequency of patients that do not sport per week weigh more than those that sport more frequently. Therefore, the more one sports, the less they weigh. The number of people that sport more a week decreases as so does the weight level. The gradiant color of black and blue emphasizes the number of times a patient sports a week. The missing values are set at 0, since the patient was reluctant to share information of their weight in the research. Furthermore, 4 rows with missing values were removed of the data. 
+
+Grading | Max points  | Awarded  | 
+------- | ----------  |  ------  | -------
+Ex. 6   | 2           |          | 
+Flawless knitting | 1 |          | 
+**Total**   | 10      |          | 
