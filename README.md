@@ -1,0 +1,2 @@
+# Using-R-for-Data-Wrangling-and-Visualization
+R is more than just a statistics program. It's a versatile tool that provides you with a vast set of opportunities for processing your data in a manner that is reproducible, transparent, attractive, well-organized, and rigorous. R is also an open source program which is constantly being developed and used by a vibrant community of data scientists and scholars.
